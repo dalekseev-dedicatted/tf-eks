@@ -44,7 +44,7 @@ jobs:
         # aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         # aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         role-to-assume: arn:aws:iam::056629602131:role/GitHubActionsRole
-        aws-region: eu-central-1
+        aws-region: us-east-1
 
     - name: Login to Amazon ECR
       id: login-ecr
@@ -52,7 +52,7 @@ jobs:
 
     - name: Build image and tag to Amazon ECR
       run: |
-        docker build -t  056629602131.dkr.ecr.us-east-1.amazonaws.com/repo:image_tag .
+        docker build -t  056629602131.dkr.ecr.us-east-1.amazonaws.com/repo:image_tag -f app/Dockerfile .
 
     - name: push image to Amazon ECR
       run: |

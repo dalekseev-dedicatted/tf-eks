@@ -18,6 +18,9 @@ jobs:
   terraform:
     name: "Terraform Pipeline"
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./infra/terraform
 
     steps:
       - name: Configure AWS credentials

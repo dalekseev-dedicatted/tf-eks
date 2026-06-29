@@ -23,11 +23,7 @@ jobs:
         working-directory: ./infra/terraform
 
     steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::056629602131:role/GitHubActionsRole
-          aws-region: us-east-1
+
 
       # Step 1: Clone the repository to the GitHub runner
       - name: Checkout Source Code
@@ -39,7 +35,13 @@ jobs:
         with:
           terraform_version: 1.8.0
 
-      # Step 3: Check code formatting rules
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::056629602131:role/GitHubActionsRole
+          aws-region: us-east-1
+
+     # Step 3: Check code formatting rules
       - name: Terraform Format Check
         run: terraform fmt -check
 

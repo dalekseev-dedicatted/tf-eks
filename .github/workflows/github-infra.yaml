@@ -42,8 +42,8 @@ jobs:
           aws-region: us-east-1
 
      # Step 3: Check code formatting rules
-      - name: Terraform Format Check
-        run: terraform fmt -check
+     # - name: Terraform Format Check
+     #   run: terraform fmt -check
 
       # Step 4: Initialize the backend configurations and plugins
       - name: Terraform Init

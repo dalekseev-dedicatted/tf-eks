@@ -8,7 +8,7 @@ on:
     branches: [main]
 
 env:
-  REGISTRY: 056629602131.dkr.ecr.eu-central-1.amazonaws.com
+  REGISTRY: 056629602131.dkr.ecr.us-east-1.amazonaws.com
   IMAGE_NAME: my-app-repo  #${{ github.repository }}
 
 jobs:

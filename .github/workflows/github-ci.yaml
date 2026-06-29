@@ -8,6 +8,7 @@ on:
     branches: [main]
 
 env:
+  REGISTRY: 056629602131.dkr.ecr.us-east-1.amazonaws.com
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
@@ -50,10 +51,22 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Build image and tag to Amazon ECR
-      run: |
-        docker build -t  056629602131.dkr.ecr.us-east-1.amazonaws.com/repo:image_tag -f app/Dockerfile .
+    - name: Extract metadata
+      id: meta
+      uses: docker/metadata-action@v5
+      with:
+        images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+        tags: |
+          type=sha,prefix=github-
+          type=raw,value=github-latest
 
-    - name: push image to Amazon ECR
-      run: |
-         docker push  056629602131.dkr.ecr.us-east-1.amazonaws.com/image_tag:latest
+    - name: Build and push
+      uses: docker/build-push-action@v5
+      with:
+        context: ./app
+        platforms: linux/amd64,linux/arm64
+        push: true
+        tags: ${{ steps.meta.outputs.tags }}
+        labels: ${{ steps.meta.outputs.labels }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max

@@ -2,9 +2,12 @@ name: CI - GitHub Runners
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
 
 env:
-  REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:

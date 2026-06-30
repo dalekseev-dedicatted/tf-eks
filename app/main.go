@@ -42,7 +42,7 @@ func main() {
 func rootHandler(w http.ResponseWriter, r *http.Request) {
 	hostname, _ := os.Hostname()
 	response := map[string]interface{}{
-		"message":      "EKS Karpenter GitOps Bench API",
+		"message":      "EKS+Karpenter+ArgoCD API (deddicated pdp-related)",
 		"version":      version,
 		"environment":  env,
 		"hostname":     hostname,

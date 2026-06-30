@@ -55,8 +55,9 @@ jobs:
       with:
         images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
         tags: |
-          type=sha,prefix=github-
-          type=raw,value=github-latest
+          type=semver,pattern={{version}}
+          type=sha,format=short,prefix=my-app-
+          type=raw,value=latest,enable=${{ github.ref == 'refs/heads/main' }}
 
     - name: Build and push
       uses: docker/build-push-action@v5

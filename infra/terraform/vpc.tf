@@ -9,6 +9,11 @@ locals {
   azs = slice(data.aws_availability_zones.available.names, 0, 3)
 }
 
+data "aws_route_tables" "private" {
+  vpc_id = module.vpc.vpc_id
+  depends_on = [module.vpc]
+}
+
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.0"
@@ -90,7 +95,7 @@ module "vpc_endpoints" {
     s3 = {
       service         = "s3"
       service_type    = "Gateway"
-      route_table_ids = module.vpc.private_route_table_ids
+      route_table_ids = data.aws_route_tables.private.ids
     }
   }
 }

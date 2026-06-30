@@ -54,10 +54,21 @@ jobs:
         run: terraform validate
 
       # Step 6: Generate and show execution plans (Runs on both PRs and Pushes)
-      - name: Terraform Plan
-        run: terraform plan -input=false
+      - name: Terraform Plan VPC+EKS
+        run: terraform plan -target=module.eks -input=false -out=tfplan_1
 
       # Step 7: Apply infrastructure changes (Executes ONLY on merges to main branch)
-      - name: Terraform Apply
+      - name: Terraform Apply VPC+EKS
+        id: terraform_apply_vpc_eks
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: terraform apply -auto-approve -input=false
+        run: terraform apply -auto-approve -input=false tfplan_1
+
+      - name: Terraform Plan All
+        id: terraform_plan_all
+        run: terraform plan -input=false -out=tfplan_2
+        if: steps.terraform_apply_vpc_eks.outcome == 'success'
+
+      # Step 9: Apply Karpenter changes (Executes ONLY on merges to main branch)
+      - name: Terraform Apply Karpenter
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.terraform_plan_all.outcome == 'success'
+        run: terraform apply -auto-approve -input=false tfplan_2

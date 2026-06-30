@@ -67,4 +67,8 @@ module "eks" {
   tags = {
     "karpenter.sh/discovery" = var.cluster_name
   }
+
+    depends_on = [
+        module.vpc_endpoints
+    ]
 }

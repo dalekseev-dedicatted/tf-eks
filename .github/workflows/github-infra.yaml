@@ -1,0 +1,74 @@
+name: "Terraform CI/CD"
+
+on:
+  push:
+    branches:
+      - main
+      - infra/**
+  pull_request:
+    branches:
+      - main
+      - infra/**
+
+permissions:
+  id-token: write # Required if using OIDC/Workload Identity Federation
+  contents: read  # Required to check out the code
+
+jobs:
+  terraform:
+    name: "Terraform Pipeline"
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./infra/terraform
+
+    steps:
+
+
+      # Step 1: Clone the repository to the GitHub runner
+      - name: Checkout Source Code
+        uses: actions/checkout@v4
+
+      # Step 2: Install and configure the specific Terraform CLI version
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::056629602131:role/GitHubActionsRole
+          aws-region: us-east-1
+
+     # Step 3: Check code formatting rules
+     # - name: Terraform Format Check
+     #   run: terraform fmt -check
+
+      # Step 4: Initialize the backend configurations and plugins
+      - name: Terraform Init
+        run: terraform init
+
+      # Step 5: Validate the syntax and configuration integrity
+      - name: Terraform Validate
+        run: terraform validate
+
+      # Step 6: Generate and show execution plans (Runs on both PRs and Pushes)
+      - name: Terraform Plan VPC+EKS
+        run: terraform plan -target=module.eks -input=false -out=tfplan_1
+
+      # Step 7: Apply infrastructure changes (Executes ONLY on merges to main branch)
+      - name: Terraform Apply VPC+EKS
+        id: terraform_apply_vpc_eks
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        run: terraform apply -auto-approve -input=false tfplan_1
+
+      - name: Terraform Plan All
+        id: terraform_plan_all
+        run: terraform plan -input=false -out=tfplan_2
+        if: steps.terraform_apply_vpc_eks.outcome == 'success'
+
+      # Step 9: Apply Karpenter changes (Executes ONLY on merges to main branch)
+      - name: Terraform Apply Karpenter
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push' && steps.terraform_plan_all.outcome == 'success'
+        run: terraform apply -auto-approve -input=false tfplan_2

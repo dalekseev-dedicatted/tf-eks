@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cd-api
+  namespace: cd-dev
+  labels:
+    app: cd-api
+    environment: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: cd-api
+  template:
+    metadata:
+      labels:
+        app: cd-api
+        environment: dev
+    spec:
+      containers:
+        - name: api
+          image: 056629602131.dkr.ecr.us-east-1.amazonaws.com/my-app-repo:my-app-21aacea
+          ports:
+            - containerPort: 8080
+          env:
+            - name: ENVIRONMENT
+              value: "dev"
+          resources:
+            requests:
+              cpu: "50m"
+              memory: "64Mi"
+            limits:
+              cpu: "100m"
+              memory: "128Mi"
+          livenessProbe:
+            httpGet:
+              path: /live
+              port: 8080
+            initialDelaySeconds: 5
+          readinessProbe:
+            httpGet:
+              path: /ready
+              port: 8080
+            initialDelaySeconds: 3
